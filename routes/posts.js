@@ -6,6 +6,26 @@ const { v4: uuidv4 } = require('uuid');
 
 router.use(express.json());
 
+//Get reply posts from array of post ids
+async function get_replies(reply_ids){
+
+  const replies_query = {
+    text:'SELECT * FROM posts WHERE poster_id = ANY ($1)',
+    values: reply_ids
+  }
+
+  try{
+    const replies = await db.query(replies_query);
+    console.log("replies",replies.rows);
+    return replies.rows;
+  }
+  catch(err){
+    console.error(err);
+  }
+  
+
+};
+
 //Get list of all forums
 router.get('/', async function(req, res, next) {
   try{
@@ -64,21 +84,18 @@ router.get('/:forum_id/:poster_id', async function(req, res, next) {
     const result = await db.query(get_post_query)
     let reply_ids = [result.rows[0].replies];
     //retrieve replies from db
-    const replies_query = {
-      text:'SELECT * FROM posts WHERE poster_id = ANY ($1)',
-      values: reply_ids
-    }
-    // returns list of reply objects of retireved message
-    const replies = await db.query(replies_query);
-    console.log("replies",replies.rows);
-    res.json(result.rows);
+    
+   get_replies(reply_ids).then((data) => {
+    console.log("replies", data);
+    let message_thread = result.rows[0];
+    message_thread.replies = data;
+    res.json(message_thread);
+   });
 
   } catch (err) {
     console.error(err);
     res.status(500).send('Internal Server Error');
   }
-  
-  
   
 });
 
