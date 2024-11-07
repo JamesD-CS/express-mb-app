@@ -6,25 +6,46 @@ const { v4: uuidv4 } = require('uuid');
 
 router.use(express.json());
 
-//Get reply posts from array of post ids
+//Helper funtion to recursivey retreive all comments of a post. Takes an array of reply_ids stored
+//in a message objects replies key
 async function get_replies(reply_ids){
 
+  let reply_thread = [];
+  
+  await recursive_retrieve(reply_ids, reply_thread);
+
+  return reply_thread;
+
+};
+
+async function recursive_retrieve( reply_ids, message_array){
+
+  if (!reply_ids ) return message_array;
+  
   const replies_query = {
     text:'SELECT * FROM posts WHERE poster_id = ANY ($1)',
-    values: reply_ids
+    values: [reply_ids]
   }
 
   try{
     const replies = await db.query(replies_query);
     console.log("replies",replies.rows);
-    return replies.rows;
+    message_array.push(replies.rows);
+    replies.rows.forEach((message) =>{
+      let reply_array = [];
+      //recursive_retrieve( message.replies, message_array);
+      recursive_retrieve( message.replies, reply_array);
+      message.replies = reply_array;
+  
+    });
   }
   catch(err){
     console.error(err);
   }
-  
 
 };
+
+
 
 //Get list of all forums
 router.get('/', async function(req, res, next) {
@@ -54,11 +75,20 @@ router.get('/:forum_id', async function(req, res, next) {
     const query = {
       // give the query a unique name
       name: 'get-posts',
-      text: 'SELECT * FROM posts WHERE forum_id = $1 AND title IS NOT NULL',
+      text: 'SELECT * FROM posts WHERE forum_id = $1 AND title IS NOT NULL ORDER BY post_time DESC',
       values: [forum_id]
     }
-    console.log(query);
+    //console.log(query);
     const result = await db.query(query)
+    //const files = await getFilePaths();
+
+  await Promise.all(result.rows.map(async (post) => {
+    let reply_ids = post.replies;
+    //retrieve replies from db
+    const reply_posts = await get_replies(reply_ids);
+    post.replies = reply_posts;
+     
+  }));
     res.json(result.rows);
 
   } catch (err) {
@@ -83,8 +113,8 @@ router.get('/:forum_id/:poster_id', async function(req, res, next) {
     //console.log(get_post_query);
     const result = await db.query(get_post_query)
     let reply_ids = [result.rows[0].replies];
-    //retrieve replies from db
-    
+   
+    //retrieve replies from db 
    get_replies(reply_ids).then((data) => {
     console.log("replies", data);
     let message_thread = result.rows[0];

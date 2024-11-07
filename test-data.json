@@ -1,0 +1,83 @@
+[
+    {
+        "post_id": 2,
+        "forum_id": 1,
+        "title": "test post 2",
+        "body": "This is another test post",
+        "poster_id": "be59e1ec-5583-46ee-959f-e5236bfe900f",
+        "post_time": "2004-10-19T10:23:54.000Z",
+        "replies": [
+            [
+                {
+                    "post_id": 7,
+                    "forum_id": 1,
+                    "title": null,
+                    "body": "this is a test reply from postman",
+                    "poster_id": "738bb8ec-24ef-427c-83cf-cbd1962960d1",
+                    "post_time": "2024-05-31T06:43:04.244Z",
+                    "replies": []
+                },
+                {
+                    "post_id": 6,
+                    "forum_id": 1,
+                    "title": null,
+                    "body": "this is a test reply from postman",
+                    "poster_id": "9683443c-7651-4dd6-9dc5-7e492c992b76",
+                    "post_time": "2024-05-31T06:39:19.865Z",
+                    "replies": [
+                        [
+                            {
+                                "post_id": 9,
+                                "forum_id": 1,
+                                "title": null,
+                                "body": "A reply to a reply from react!",
+                                "poster_id": "1485c5bb-95ac-42af-8bf7-3a621fa78813",
+                                "post_time": "2024-07-01T21:54:41.697Z",
+                                "replies": []
+                            }
+                        ]
+                    ]
+                }
+            ]
+        ]
+    },
+    {
+        "post_id": 1,
+        "forum_id": 1,
+        "title": "test post",
+        "body": "This is a test post",
+        "poster_id": "363220b5-d17a-467c-b231-abcb8a408042",
+        "post_time": "2004-10-19T10:23:54.000Z",
+        "replies": [
+            [
+                {
+                    "post_id": 5,
+                    "forum_id": 1,
+                    "title": null,
+                    "body": "this is a reply",
+                    "poster_id": "3ec2d1fa-547a-46d8-9314-850899e3aa16",
+                    "post_time": "2004-10-19T10:23:54.000Z",
+                    "replies": []
+                },
+                {
+                    "post_id": 8,
+                    "forum_id": 1,
+                    "title": null,
+                    "body": "A reply to a post from react!",
+                    "poster_id": "39749c36-4e00-4b55-93f7-bbc5b769fdd6",
+                    "post_time": "2024-07-01T21:53:30.977Z",
+                    "replies": []
+                }
+            ]
+        ]
+    },
+    {
+        "post_id": 10,
+        "forum_id": 1,
+        "title": "A new post from react",
+        "body": "this is a post from react!",
+        "poster_id": "aee95415-ed84-4d07-8d78-2b274a27dc33",
+        "post_time": "2024-07-01T21:58:10.446Z",
+        "replies": []
+    }
+]
