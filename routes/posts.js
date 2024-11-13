@@ -45,8 +45,6 @@ async function recursive_retrieve( reply_ids, message_array){
 
 };
 
-
-
 //Get list of all forums
 router.get('/', async function(req, res, next) {
   try{
@@ -68,20 +66,60 @@ router.get('/', async function(req, res, next) {
 });
 
 //Get all posts from forum
-router.get('/:forum_id', async function(req, res, next) {
+router.get('/:forum_id/', async function(req, res, next) {
   forum_id = Number(req.params.forum_id);
+  page = 1;
+  page_limit = 10;
+
+  //paginate post results. 
+  if (req.query.page){
+    console.log('page query found, page is:', req.query.page);
+    page = Number(req.query.page);
+  }
+  //limit post results. Default to 10 if no query parameters provided
+  if (req.query.page_limit){
+    console.log('page limit query found, page limit is:', req.query.page_limit);
+    page_limit = Number(req.query.page_limit);
+  } else{
+    page_limit = 10;
+  }
+
+  console.log('page', page, 'page_limit', page_limit);
+
   try {
 
     const query = {
       // give the query a unique name
-      name: 'get-posts',
+      name: 'get-posts' + String(Date.now()),
       text: 'SELECT * FROM posts WHERE forum_id = $1 AND title IS NOT NULL ORDER BY post_time DESC',
       values: [forum_id]
+    
     }
-    //console.log(query);
-    const result = await db.query(query)
-    //const files = await getFilePaths();
 
+    const get_post_count_query = {
+      // give the query a unique name
+      name: 'get-post-count' + String(Date.now()),
+      text: 'SELECT COUNT(*) FROM posts WHERE forum_id = $1 AND title IS NOT NULL',
+      values: [forum_id]
+    }
+
+    
+    query.text += ' LIMIT ' + String(page_limit);
+    console.log("query text: ", query.text);
+    //append page and offset if present in url query params
+    if (page > 1){
+      let offset = (page * page_limit) - page_limit;
+
+      query.text += ' OFFSET ' + String(offset);
+      console.log("page offset > 0 , query text: ", query.text);
+
+    }
+   
+    console.log("final query:", query);
+    const result = await db.query(query);
+    const total_posts = await db.query(get_post_count_query);
+    
+  //get replies for each post
   await Promise.all(result.rows.map(async (post) => {
     let reply_ids = post.replies;
     //retrieve replies from db
@@ -89,7 +127,7 @@ router.get('/:forum_id', async function(req, res, next) {
     post.replies = reply_posts;
      
   }));
-    res.json(result.rows);
+    res.json({posts:result.rows, total_posts: total_posts.rows});
 
   } catch (err) {
     console.error(err);
